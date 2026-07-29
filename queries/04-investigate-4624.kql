@@ -5,5 +5,6 @@
 // A real account + Type 10 + external IP would indicate an actual compromise.
 SecurityEvent
 | where EventID == 4624
+| where LogonType == 3
 | project TimeGenerated, Account, LogonTypeName, IpAddress, WorkstationName
 | order by TimeGenerated desc
