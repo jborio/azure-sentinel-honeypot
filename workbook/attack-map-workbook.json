@@ -1,0 +1,41 @@
+{
+  "version": "Notebook/1.0",
+  "items": [
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "let GeoIPDB = _GetWatchlist(\"geoip\");\nSecurityEvent\n| where EventID == 4625\n| where IpAddress != \"-\"\n| evaluate ipv4_lookup(GeoIPDB, IpAddress, network)\n| extend latitude = toreal(latitude), longitude = toreal(longitude)\n| extend city_name = iff(isempty(city_name), country_name, city_name)\n| summarize Attempts = count() by IpAddress, city_name, country_name, latitude, longitude\n| order by Attempts desc",
+        "size": 3,
+        "timeContext": {
+          "durationMs": 86400000
+        },
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces",
+        "visualization": "map",
+        "mapSettings": {
+          "locInfo": "LatLong",
+          "latitude": "latitude",
+          "longitude": "longitude",
+          "sizeSettings": "Attempts",
+          "sizeAggregation": "Sum",
+          "opacity": 0.8,
+          "labelSettings": "city_name",
+          "legendMetric": "Attempts",
+          "legendAggregation": "Sum",
+          "minSize": 5,
+          "maxSize": 30,
+          "itemColorSettings": {
+            "nodeColorField": "Attempts",
+            "colorAggregation": "Sum",
+            "type": "heatmap",
+            "heatmapPalette": "greenRed"
+          }
+        }
+      },
+      "name": "AttackMap"
+    }
+  ],
+  "fallbackResourceIds": [],
+  "$schema": "https://github.com/Microsoft/Application-Insights-Workbooks/blob/master/schema/workbook.json"
+}
