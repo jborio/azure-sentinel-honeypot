@@ -1,0 +1,13 @@
+// Summarize the brute-force: attempts per source IP, target account, and time window.
+// A single IP with many attempts against one account in a short window = brute force.
+SecurityEvent
+| where EventID == 4625
+| where Account !contains "ANONYMOUS"
+| where IpAddress != "-"
+| summarize Attempts = count(),
+            FirstSeen = min(TimeGenerated),
+            LastSeen  = max(TimeGenerated),
+            AccountsTargeted = dcount(Account)
+    by IpAddress
+| extend DurationSeconds = datetime_diff('second', LastSeen, FirstSeen)
+| order by Attempts desc

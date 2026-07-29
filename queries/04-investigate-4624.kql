@@ -1,0 +1,9 @@
+// Triage successful logons (Event ID 4624). Read three fields before concluding:
+//  - Account:       ANONYMOUS LOGON = benign noise; a real account = investigate
+//  - LogonTypeName: Type 3 (Network) = SMB negotiation; Type 10 (RemoteInteractive) = real RDP
+//  - IpAddress:     your own IP vs an external attacker IP
+// A real account + Type 10 + external IP would indicate an actual compromise.
+SecurityEvent
+| where EventID == 4624
+| project TimeGenerated, Account, LogonTypeName, IpAddress, WorkstationName
+| order by TimeGenerated desc

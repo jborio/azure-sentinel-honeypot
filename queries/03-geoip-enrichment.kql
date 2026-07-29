@@ -1,0 +1,16 @@
+// Enrich attacker IPs with geolocation via the geoip watchlist, ready for the map.
+// - toreal() converts watchlist string coords to numbers so the map can plot them.
+// - city fallback: blocks that resolve to country-only display the country as the label.
+// - REDACTED_MY_IP: replace locally with your own IP to exclude your test logins.
+//   (Left redacted here — a personal IP does not belong in a public repo.)
+let GeoIPDB = _GetWatchlist("geoip");
+SecurityEvent
+| where EventID == 4625
+| where Account !contains "ANONYMOUS"
+| where IpAddress != "-"
+| where IpAddress != "REDACTED_MY_IP"
+| evaluate ipv4_lookup(GeoIPDB, IpAddress, network)
+| extend latitude  = toreal(latitude), longitude = toreal(longitude)
+| extend city_name = iff(isempty(city_name), country_name, city_name)
+| summarize Attempts = count() by IpAddress, city_name, country_name, latitude, longitude
+| order by Attempts desc

@@ -1,0 +1,8 @@
+// Failed RDP/logon attempts (Event ID 4625) captured on the honeypot.
+// Anonymous-logon noise is filtered out so this shows real authentication attempts.
+SecurityEvent
+| where EventID == 4625
+| where Account !contains "ANONYMOUS"
+| where IpAddress != "-"
+| project TimeGenerated, Account, LogonTypeName, IpAddress, WorkstationName
+| order by TimeGenerated desc
